@@ -55,7 +55,7 @@ impl PrefixOpt for A {
 impl PrefixOptContainer for AC {
     type Parsed = A;
     fn with_prefix(prefix: &str) -> Self {
-        AC { number: u64::with_prefix(&format!("{}.number", prefix)) }
+        Self { number: u64::with_prefix(&format!("{}.number", prefix)) }
     }
     fn as_arguments(&self) -> Args {
         self.number.as_arguments()

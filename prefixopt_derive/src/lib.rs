@@ -25,7 +25,7 @@ fn impl_prefixopt(ast: DeriveInput) -> quote::Tokens {
     let ref ident = ast.ident;
     let generics = add_prefix_opt(&ast.generics);
     let tokens = match ast.body {
-        syn::Body::Struct(_struct) => variant_data::derive(ident, _struct),
+        syn::Body::Struct(_struct) => variant_data::derive(ident, &_struct),
         _ => panic!(),
     };
     panic!()
