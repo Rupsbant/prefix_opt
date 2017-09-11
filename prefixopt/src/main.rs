@@ -1,10 +1,10 @@
 extern crate clap;
 
 pub mod core;
-pub mod base_types;
+pub mod parsable;
 
 use core::*;
-use base_types::*;
+use parsable::*;
 
 fn main() {
     let splitc = SplitC::with_prefix("o");
@@ -32,14 +32,14 @@ impl Default for Split {
     }
 }
 pub struct AC {
-    number: U64C,
+    number: Parsable<u64>,
 }
 pub struct SplitC {
     ag: String,
     a: AC,
     bg: String,
     b0: AC,
-    b1: U64C,
+    b1: Parsable<u64>,
 }
 impl A {
     fn new(number: u64) -> A {

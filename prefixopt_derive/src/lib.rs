@@ -28,5 +28,5 @@ fn impl_prefixopt(ast: DeriveInput) -> quote::Tokens {
         syn::Body::Struct(_struct) => variant_data::derive(ident, &_struct),
         _ => panic!(),
     };
-    panic!()
+    tokens
 }
