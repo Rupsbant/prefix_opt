@@ -36,6 +36,6 @@ impl<'a: 'b, 'b> Args<'a, 'b> {
         self
     }
     pub fn bind_app(self, clapp: clap::App<'a, 'b>) -> clap::App<'a, 'b> {
-        clapp.args(&self.0).groups(&self.1)
+        clapp.groups(&self.1).args(&self.0)
     }
 }

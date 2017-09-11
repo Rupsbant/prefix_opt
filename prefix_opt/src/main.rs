@@ -1,8 +1,10 @@
 extern crate clap;
-extern crate prefix_opt;
 
-use prefix_opt::*;
-use prefix_opt::base_types::*;
+pub mod core;
+pub mod base_types;
+
+use core::*;
+use base_types::*;
 
 fn main() {
     let splitc = SplitC::with_prefix("o");
@@ -80,8 +82,8 @@ impl PrefixOptContainer for SplitC {
         }
     }
     fn as_arguments(&self) -> Args {
-        let ag = clap::ArgGroup::with_name(&self.ag);
-        let bg = clap::ArgGroup::with_name(&self.ag).multiple(true);
+        let ag = clap::ArgGroup::with_name(&self.ag).multiple(true);
+        let bg = clap::ArgGroup::with_name(&self.bg).multiple(true).conflicts_with(&self.ag);
         let a = self.a.as_arguments();
         let b0 = self.b0.as_arguments();
         let b1 = self.b1.as_arguments();

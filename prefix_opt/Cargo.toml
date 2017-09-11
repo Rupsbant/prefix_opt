@@ -3,9 +3,7 @@ name = "prefix_opt"
 version = "0.1.0"
 authors = ["Ruben Lapauw <Ruben.Lapauw@cs.kuleuven.be>"]
 
-[features]
-debug = []
-
 [dependencies]
+#clap = {version= "2.23.1", features=["debug"]}
 clap = "2.23.1"
 map_in_place = "0.1.0"
