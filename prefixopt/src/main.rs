@@ -84,10 +84,11 @@ impl PrefixOptContainer for SplitC {
     fn as_arguments(&self) -> Args {
         let ag = clap::ArgGroup::with_name(&self.ag).multiple(true);
         let bg = clap::ArgGroup::with_name(&self.bg).multiple(true).conflicts_with(&self.ag);
+        let allGroup = clap::ArgGroup::with_name("All").arg(&self.ag).arg(&self.bg);
         let a = self.a.as_arguments();
         let b0 = self.b0.as_arguments();
         let b1 = self.b1.as_arguments();
-        let mut o = Args::default().add_group(ag).add_group(bg);
+        let mut o = Args::default().add_group(ag).add_group(bg).add_group(allGroup);
         o.extend(a.map_arg(|arg| arg.group(&self.ag)));
         o.extend(b0.map_arg(|arg| arg.group(&self.bg)));
         o.extend(b1.map_arg(|arg| arg.group(&self.bg)));

@@ -7,6 +7,11 @@ authors = ["Ruben Lapauw <Ruben.Lapauw@cs.kuleuven.be>"]
 syn = "0.11.4"
 quote = "0.3.12"
 prefixopt = { path = "../prefixopt" }
+clap = "2.23.1"
 
 [lib]
 proc-macro = true
+
+[[bin]]
+name = "example"
+path = "bin/example.rs"

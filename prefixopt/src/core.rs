@@ -3,7 +3,9 @@ extern crate map_in_place;
 
 pub trait PrefixOpt {
     type Container: PrefixOptContainer;
-    fn with_prefix(prefix: &str) -> Self::Container;
+    fn with_prefix(prefix: &str) -> Self::Container {
+        Self::Container::with_prefix(prefix)
+    }
 }
 
 pub trait PrefixOptContainer {
