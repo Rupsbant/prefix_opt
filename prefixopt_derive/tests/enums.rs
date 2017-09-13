@@ -5,7 +5,7 @@ extern crate prefixopt_derive;
 extern crate prefixopt;
 
 #[test]
-fn named_struct() {
+fn named_enum() {
     use prefixopt::core::PrefixOpt;
     #[derive(PrefixOpt, Debug)]
     pub enum A {
