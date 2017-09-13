@@ -40,7 +40,7 @@ fn derive_struct(ident_container: &Ident, variant_data: &VariantData) -> quote::
                 }
             )
         }
-        VariantData::Tuple(ref fields) => {
+        VariantData::Tuple(ref fields) if fields.len() > 0 => {
             let types = fields.iter().map(|f| &f.ty);
             quote!(
                 #[allow(non_camel_case_types)]
@@ -48,30 +48,32 @@ fn derive_struct(ident_container: &Ident, variant_data: &VariantData) -> quote::
                 pub struct #ident_container(#(<#types as PrefixOpt>::Container,)*);
             )
         }
-        VariantData::Unit => quote!(
+        VariantData::Unit |
+        VariantData::Tuple(_) => {
+            quote!(
             #[allow(non_camel_case_types)]
             #[derive(Debug)]
             pub struct #ident_container(String);
-        ),
+        )
+        }
     }
 }
 fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> quote::Tokens {
     match *variant_data {
         VariantData::Struct(ref fields) => {
             let types = fields.iter().map(|f| &f.ty);
-            let names = fields
-                .iter()
-                .map(|f| f.ident.as_ref().unwrap());
+            let names = fields.iter().map(|f| f.ident.as_ref().unwrap());
             let fmt = fields
                 .iter()
                 .map(|f| format!("{{}}.{}", f.ident.as_ref().unwrap()));
             quote!(
                 fn with_prefix(prefix: &str) -> Self {
-                    Self {#(#names: <#types as PrefixOpt>::Container::with_prefix(&format!(#fmt, prefix))),*}
+                    Self {#(#names: <#types as PrefixOpt>
+                        ::Container::with_prefix(&format!(#fmt, prefix))),*}
                 }
             )
         }
-        VariantData::Tuple(ref fields) => {
+        VariantData::Tuple(ref fields) if fields.len() > 0 => {
             let types = fields.iter().map(|f| &f.ty);
             let fmt = fields
                 .iter()
@@ -79,33 +81,52 @@ fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> qu
                 .map(|(i, _)| format!("{{}}.{}", i));
             quote!(
                 fn with_prefix(prefix: &str) -> Self {
-                    #ident_container (#(<#types as PrefixOpt>::Container::with_prefix(&format!(#fmt, prefix))),*)
+                    #ident_container (#(<#types as PrefixOpt>
+                        ::Container::with_prefix(&format!(#fmt, prefix))),*)
                 }
             )
         }
-        VariantData::Unit => quote!(
+        VariantData::Unit |
+        VariantData::Tuple(_) => {
+            quote!(
             fn with_prefix(prefix: &str) -> Self {
                 #ident_container(prefix.into())
             }
         )
+        }
     }
 }
 
 fn derive_as_arguments(fields: &[Field]) -> quote::Tokens {
-    let names = fields.iter().enumerate().map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+    let names = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+    let unit_empty_tag = if fields.len() == 0 {
+        quote!(args.add_arg(clap::Arg::with_name(&self.0).long(&self.0));)
+    } else {
+        quote!()
+    };
     quote!(
         #[allow(unused_mut)]
         fn as_arguments(&self) -> Args {
             let mut args = Args::default();
             #(args.extend(self.#names.as_arguments());)*;
+            #unit_empty_tag
             args
         }
     )
 }
 
 fn derive_match_arguments(fields: &[Field]) -> quote::Tokens {
-    let names1 = fields.iter().enumerate().map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
-    let names2 = fields.iter().enumerate().map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+    let names1 = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+    let names2 = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
     quote!(
         #[allow(unused_mut)]
         fn match_arguments(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed> {

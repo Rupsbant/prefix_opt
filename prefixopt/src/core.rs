@@ -24,11 +24,14 @@ impl<'a: 'b, 'b> Args<'a, 'b> {
         self.1.extend(other.1);
     }
     pub fn add_group_mut(&mut self, g: clap::ArgGroup<'a>) {
-        self.1.push(g)
+        self.1.push(g);
     }
     pub fn add_group(mut self, g: clap::ArgGroup<'a>) -> Self {
         self.1.push(g);
         self
+    }
+    pub fn add_arg(&mut self, other: clap::Arg<'a,'b>) {
+        self.0.push(other);
     }
     pub fn map_arg<F>(mut self, f: F) -> Self
         where F: FnMut(clap::Arg<'a, 'b>) -> clap::Arg<'a, 'b>

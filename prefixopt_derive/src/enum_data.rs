@@ -51,6 +51,7 @@ fn decl_enum(ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
     quote!(
         #[allow(non_camel_case_types)]
         #[allow(non_snake_case)]
+        #[derive(Debug)]
         pub struct #ident {
             #(
               #fname: <#ftype as PrefixOpt>::Container,
@@ -62,19 +63,22 @@ fn decl_enum(ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
 fn impl_with_prefix(tags: &[(&Ident, Ident)]) -> quote::Tokens {
     let tname = tags.iter().map(|id| id.0);
     let ttype = tags.iter().map(|id| &id.1);
-    let tfmts = tags.iter().map(|id| format!("{{}}.{}", id.0));
+    let tfmts1 = tags.iter().map(|id| format!("{{}}.{}", id.0));
+    let tfmts2 = tags.iter().map(|id| format!("{{}}.{}_g", id.0));
     let prefix1 = tags.iter().map(|id| id.0);
     let prefix2 = tags.iter().map(|id| id.0);
-    let prefix3 = tags.iter().map(|id| id.0);
+    let prefix_group1 = tags.iter().map(|id| Ident::new(format!("{}_g", id.0)));
+    let prefix_group2 = tags.iter().map(|id| Ident::new(format!("{}_g", id.0)));
     let group = tags.iter()
         .map(|id| Ident::new(format!("{}_group", id.0)));
     quote!(
         #[allow(non_snake_case)]
         fn with_prefix(prefix: &str) -> Self {
-            #(let #prefix1 = format!(#tfmts, prefix);)*
+            #(let #prefix1 = format!(#tfmts1, prefix);)*
+            #(let #prefix_group1 = format!(#tfmts2, prefix);)*
             Self {
-                #(#tname: <#ttype as PrefixOpt>::Container::with_prefix(&#prefix3),)*
-                #(#group: #prefix2,)*
+                #(#tname: <#ttype as PrefixOpt>::Container::with_prefix(&#prefix2),)*
+                #(#group: #prefix_group2,)*
             }
         }
     )
@@ -99,7 +103,7 @@ fn impl_as_arguments(tags: &[(&Ident, Ident)]) -> quote::Tokens {
                 .add_group(
                     clap::ArgGroup::with_name(&self.#g1)
                         .multiple(true)
-                        #(.conflict_with(&self.#g2))*
+                        #(.conflicts_with(&self.#g2))*
                 )
             )*;
             #(o.extend(self.#t1.as_arguments().map_arg(|arg| arg.group(&self.#groups)));)*
