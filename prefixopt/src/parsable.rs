@@ -4,8 +4,50 @@ use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct Parsable<T>(String, PhantomData<T>);
-impl<T: FromStr> PrefixOpt for T {
-    type Container = Parsable<T>;
+impl PrefixOpt for String {
+    type Container = Parsable<String>;
+}
+impl PrefixOpt for bool {
+    type Container = Parsable<bool>;
+}
+impl PrefixOpt for char {
+    type Container = Parsable<char>;
+}
+impl PrefixOpt for u64 {
+    type Container = Parsable<u64>;
+}
+impl PrefixOpt for u32 {
+    type Container = Parsable<u32>;
+}
+impl PrefixOpt for u16 {
+    type Container = Parsable<u16>;
+}
+impl PrefixOpt for u8 {
+    type Container = Parsable<u8>;
+}
+impl PrefixOpt for usize {
+    type Container = Parsable<usize>;
+}
+impl PrefixOpt for i64 {
+    type Container = Parsable<i64>;
+}
+impl PrefixOpt for i32 {
+    type Container = Parsable<i32>;
+}
+impl PrefixOpt for i16 {
+    type Container = Parsable<i16>;
+}
+impl PrefixOpt for i8 {
+    type Container = Parsable<i8>;
+}
+impl PrefixOpt for isize {
+    type Container = Parsable<isize>;
+}
+impl PrefixOpt for f32 {
+    type Container = Parsable<f32>;
+}
+impl PrefixOpt for f64 {
+    type Container = Parsable<f64>;
 }
 
 impl<T: FromStr> PrefixOptContainer for Parsable<T> {

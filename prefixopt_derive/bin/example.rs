@@ -12,9 +12,27 @@ pub enum A {
     C,
     D()
 }
+
+#[derive(Debug, PrefixOpt)]
+pub enum B {
+    Foo,
+    Bar,
+    Bux(Box<Bux>),
+}
+#[derive(Debug, PrefixOpt, Default)]
+pub struct Bux{
+    name: String,
+    age: u64,
+}
 impl Default for A {
     fn default() -> A {
         A::A(0,0)
+    }
+}
+
+impl Default for B {
+    fn default() -> B {
+        B::Foo(0,0)
     }
 }
 
