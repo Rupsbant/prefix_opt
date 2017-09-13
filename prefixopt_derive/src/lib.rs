@@ -5,12 +5,8 @@ extern crate quote;
 
 use proc_macro::TokenStream;
 use syn::*;
-mod generics;
 mod enum_data;
 mod variant_data;
-
-use generics::add_prefix_opt;
-
 
 /// Generates the `PrefixOpt` impl.
 #[proc_macro_derive(PrefixOpt, attributes(prefixopt))]
@@ -23,7 +19,7 @@ pub fn prefixopt(input: TokenStream) -> TokenStream {
 
 fn impl_prefixopt(ast: DeriveInput) -> quote::Tokens {
     let ref ident = ast.ident;
-    let generics = add_prefix_opt(&ast.generics);
+    //let generics = add_prefix_opt(&ast.generics);
     let tokens = match ast.body {
         syn::Body::Struct(_struct) => variant_data::derive(ident, &_struct),
         syn::Body::Enum(_enum) => enum_data::derive(ident, &_enum),

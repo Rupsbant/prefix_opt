@@ -8,31 +8,31 @@ use prefixopt::core::*;
 #[derive(Debug, PrefixOpt)]
 pub enum A {
     A(u32, u16),
-    B(u64),
+    B(B),
     C,
-    D()
+    D(),
 }
 
 #[derive(Debug, PrefixOpt)]
 pub enum B {
     Foo,
-    Bar,
+    Bar(Option<Option<Bux>>),
     Bux(Box<Bux>),
 }
 #[derive(Debug, PrefixOpt, Default)]
-pub struct Bux{
+pub struct Bux {
     name: String,
     age: u64,
 }
 impl Default for A {
     fn default() -> A {
-        A::A(0,0)
+        A::A(0, 0)
     }
 }
 
 impl Default for B {
     fn default() -> B {
-        B::Foo(0,0)
+        B::Foo
     }
 }
 

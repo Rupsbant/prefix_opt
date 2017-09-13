@@ -73,7 +73,7 @@ fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> qu
                 }
             )
         }
-        VariantData::Tuple(ref fields) if fields.len() > 0 => {
+        VariantData::Tuple(ref fields) if fields.len() > 1 => {
             let types = fields.iter().map(|f| &f.ty);
             let fmt = fields
                 .iter()
@@ -83,6 +83,14 @@ fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> qu
                 fn with_prefix(prefix: &str) -> Self {
                     #ident_container (#(<#types as PrefixOpt>
                         ::Container::with_prefix(&format!(#fmt, prefix))),*)
+                }
+            )
+        }
+        VariantData::Tuple(ref fields) if fields.len() == 1 => {
+            let types = &fields[0].ty;
+            quote!(
+                fn with_prefix(prefix: &str) -> Self {
+                    #ident_container (<#types as PrefixOpt>::Container::with_prefix(prefix))
                 }
             )
         }
