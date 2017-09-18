@@ -7,7 +7,7 @@ use prefixopt::core::*;
 
 #[derive(Debug, PrefixOpt)]
 pub enum A {
-    A(u32, u16),
+    A(Box<u32>, Option<Option<u8>>),
     B(B),
     C,
     D(),
@@ -16,20 +16,14 @@ pub enum A {
 #[derive(Debug, PrefixOpt)]
 pub enum B {
     Foo,
-    Bar(Option<Option<Bux>>),
-    Bux(Box<Bux>),
-}
-#[derive(Debug, PrefixOpt, Default)]
-pub struct Bux {
-    name: String,
-    age: u64,
+    Bar,
+    Bux,
 }
 impl Default for A {
     fn default() -> A {
-        A::A(0, 0)
+        A::A(Box::new(1), None)
     }
 }
-
 impl Default for B {
     fn default() -> B {
         B::Foo
