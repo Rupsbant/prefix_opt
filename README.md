@@ -72,3 +72,14 @@ In a general order of personal importance.
 * Add annotation to alias short names or shorter long names for leaf values.
 * Add annotation for descriptions to arguments.
 * Remove with_prefix struct, depends on clap API change concerning owned strings, [issue 1041](https://github.com/kbknapp/clap-rs/issues/1041).
+
+
+
+## License
+Dual-licensed.
+
+Licensed under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0 or the MIT license
+http://opensource.org/licenses/MIT, at your
+option. This project may not be copied, modified, or distributed
+except according to those terms.
