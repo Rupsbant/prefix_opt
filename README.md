@@ -63,7 +63,6 @@ I have a program with too much options to encode manually. I liked OpenSSH's app
 ## To do and possible extensions
 In a general order of personal importance.
 
-* Fix bug regarding the default of an enum / struct not being the default of it's subtypes.
 * Optional integration with structopt which is flat.
 * Remove redundant indexing for enums, tuples and structs with a single field.
 * Remove redundant formatting with a linked list of prefixes that is formatted once.
@@ -73,7 +72,10 @@ In a general order of personal importance.
 * Add annotation for descriptions to arguments.
 * Remove with_prefix struct, depends on clap API change concerning owned strings, [issue 1041](https://github.com/kbknapp/clap-rs/issues/1041).
 
+## Changelog
 
+0.2.0 Fixing default bug, an option minimally changes it's sisters: only for sister fields in a non-default enum discriminant.
+0.1.0 Initial version, has known bugs.
 
 ## License
 Dual-licensed.
