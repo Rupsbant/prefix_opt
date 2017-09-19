@@ -32,7 +32,6 @@ impl Default for B {
 
 fn main() {
     let splitc = A::with_prefix("o");
-    println!("{:?}", splitc);
     let args = splitc.as_arguments();
     let app = args.bind_app(clap::App::new("testing"));
     let matches = app.get_matches();

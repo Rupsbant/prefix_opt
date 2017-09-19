@@ -1,24 +1,20 @@
 [package]
 name = "prefixopt_derive"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Ruben Lapauw <Ruben.Lapauw@cs.kuleuven.be>"]
 license = "MIT/Apache-2.0"
-description = "See Read Me. Automatically derive options from structs and enums to use with clap."
+description = "See ReadMe. Automatically derive options from structs and enums to use with clap."
 readme = "../README.md"
 
 [dependencies]
 syn = "^0.11.4"
 quote = "^0.3.12"
 clap = "^2.23"
-prefixopt = {path="../"}
+prefixopt = "0.2.0"
 
 [lib]
 proc-macro = true
 
 [[bin]]
 name = "example"
-path = "bin/example.rs"
-
-[[bin]]
-name = "expanded"
 path = "bin/expanded.rs"
