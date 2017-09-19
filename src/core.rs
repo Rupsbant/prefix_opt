@@ -12,8 +12,24 @@ pub trait PrefixOptContainer {
     type Parsed;
     fn with_prefix(prefix: &str) -> Self;
     fn as_arguments(&self) -> Args;
-    fn match_arguments(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed>;
+    fn override_arguments(&self,
+                          parsed: Self::Parsed,
+                          matches: &clap::ArgMatches)
+                          -> Option<Self::Parsed>;
 }
+pub trait PrefixOptContainerDefault: PrefixOptContainer {
+    fn default_parse_args(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed>;
+}
+impl<T> PrefixOptContainerDefault for T
+    where T: PrefixOptContainer,
+          T::Parsed: Default
+{
+    fn default_parse_args(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
+        let def = T::Parsed::default();
+        self.override_arguments(def, matches)
+    }
+}
+
 
 #[derive(Default)]
 pub struct Args<'a: 'b, 'b>(pub Vec<clap::Arg<'a, 'b>>, pub Vec<clap::ArgGroup<'a>>);
@@ -30,7 +46,7 @@ impl<'a: 'b, 'b> Args<'a, 'b> {
         self.1.push(g);
         self
     }
-    pub fn add_arg(&mut self, other: clap::Arg<'a,'b>) {
+    pub fn add_arg(&mut self, other: clap::Arg<'a, 'b>) {
         self.0.push(other);
     }
     pub fn map_arg<F>(mut self, f: F) -> Self

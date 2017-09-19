@@ -7,7 +7,7 @@ pub fn derive(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
     let fields = variant_data.fields();
     let constructor = derive_with_prefix(&ident_container, variant_data);
     let builder = derive_as_arguments(fields);
-    let matcher = derive_match_arguments(fields);
+    let matcher = derive_override_arguments(fields);
     quote!(
         #[allow(non_upper_case_globals)]
         #[allow(unused_attributes, unused_imports, unused_variables)]
@@ -126,7 +126,7 @@ fn derive_as_arguments(fields: &[Field]) -> quote::Tokens {
     )
 }
 
-fn derive_match_arguments(fields: &[Field]) -> quote::Tokens {
+fn derive_override_arguments(fields: &[Field]) -> quote::Tokens {
     let names1 = fields
         .iter()
         .enumerate()
@@ -135,14 +135,16 @@ fn derive_match_arguments(fields: &[Field]) -> quote::Tokens {
         .iter()
         .enumerate()
         .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+    let names3 = fields
+        .iter()
+        .enumerate()
+        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
     quote!(
         #[allow(unused_mut)]
-        fn match_arguments(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
-            let mut out = Self::Parsed::default();
+        fn override_arguments(&self, mut out: Self::Parsed, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
             #(
-                if let Some(p) = self.#names1.match_arguments(matches) {
-                    out.#names2 = p;
-                }
+                out.#names3 =
+                if let Some(p) = self.#names1.override_arguments(out.#names2, matches) {p} else {return None};
             )*
             Some(out)
         }

@@ -36,6 +36,6 @@ fn main() {
     let args = splitc.as_arguments();
     let app = args.bind_app(clap::App::new("testing"));
     let matches = app.get_matches();
-    let split = splitc.match_arguments(&matches);
+    let split = splitc.override_arguments(A::default(), &matches);
     println!("{:?}", split);
 }

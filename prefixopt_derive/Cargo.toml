@@ -10,7 +10,7 @@ readme = "../README.md"
 syn = "^0.11.4"
 quote = "^0.3.12"
 clap = "^2.23"
-prefixopt = "0.1.0"
+prefixopt = {path="../"}
 
 [lib]
 proc-macro = true
@@ -18,3 +18,7 @@ proc-macro = true
 [[bin]]
 name = "example"
 path = "bin/example.rs"
+
+[[bin]]
+name = "expanded"
+path = "bin/expanded.rs"

@@ -112,14 +112,16 @@ fn impl_as_arguments(tags: &[(&Ident, Ident)]) -> quote::Tokens {
     )
 }
 fn impl_match_arguments(tags: &[(&Ident, Ident)]) -> quote::Tokens {
-    let types = tags.iter().map(|id| id.0);
+    let tname = tags.iter().map(|id| id.0);
+    let ttype = tags.iter().map(|id| &id.1);
     let group = tags.iter()
         .map(|id| Ident::new(format!("{}_group", id.0)))
         .collect::<Vec<_>>();
     quote!(
-        fn match_arguments(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
+        fn override_arguments(&self, parsed: Self::Parsed, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
             #(if matches.is_present(&self.#group) {
-                self.#types.match_arguments(matches).map(From::from)
+                let unwrap = #ttype::from(parsed);
+                self.#tname.override_arguments(unwrap, matches).map(From::from)
             }else)* {
                 Some(Self::Parsed::default())
             }
@@ -129,23 +131,37 @@ fn impl_match_arguments(tags: &[(&Ident, Ident)]) -> quote::Tokens {
 }
 
 fn impl_from(enu: &Ident, name: &Ident, ty: &Ident, var_data: &VariantData) -> quote::Tokens {
-    let construct = match *var_data {
+    let (construct, matcher, match_constructor) = match *var_data {
         VariantData::Struct(ref v) => {
             let v1 = v.iter().map(|f| &f.ident);
             let v2 = v.iter().map(|f| &f.ident);;
-            quote!({#(#v2: fr.#v1,)*})
+            let construct = quote!({#(#v2: fr.#v1,)*});
+            let v1 = v.iter().map(|f| &f.ident);
+            let matcher = quote!({#(#v1,)*});
+            (construct,
+            matcher.clone(), matcher)
         }
         VariantData::Tuple(ref v) =>{
             let id = v.iter().enumerate().map(|(idx,_)| Ident::new(idx.to_string()));
-            let q = quote!((#(fr.#id,)*));
-            q
+            let construct = quote!((#(fr.#id,)*));
+            let letters1 = v.iter().enumerate().map(|(idx,_)| Ident::new(format!("a{}", idx)));
+            let matcher = quote!((#(#letters1,)*));
+            (construct, matcher.clone(), matcher)
         }
-        VariantData::Unit => quote!()
+        VariantData::Unit => (quote!(), quote!(), quote!(()))
     };
     quote!(
         impl From<#ty> for #enu {
             fn from(fr: #ty) -> Self {
                 #enu::#name #construct
+            }
+        }
+        impl #ty {
+            fn from(fr: #enu) -> Self {
+                match fr {
+                    #enu::#name#matcher => #ty#match_constructor,
+                    _ => #ty::default(),
+                }
             }
         }
     )

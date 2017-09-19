@@ -61,11 +61,12 @@ impl<T: FromStr> PrefixOptContainer for Parsable<T> {
                       .takes_value(true)],
              vec![])
     }
-    fn match_arguments(&self, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
+    fn override_arguments(&self, parsed: Self::Parsed, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
         matches
             .value_of(&self.0)
             .map(str::parse)
-            .and_then(Result::ok)
+            .map(Result::ok)
+            .unwrap_or(Some(parsed))
     }
 }
 pub struct Unit();
@@ -78,7 +79,7 @@ impl PrefixOptContainer for Parsable<Unit> {
     fn as_arguments(&self) -> Args {
         Args(vec![clap::Arg::with_name(&self.0).long(&self.0)], vec![])
     }
-    fn match_arguments(&self, _: &clap::ArgMatches) -> Option<Self::Parsed> {
+    fn override_arguments(&self, _: Self::Parsed, _: &clap::ArgMatches) -> Option<Self::Parsed> {
         Some(())
     }
 }
