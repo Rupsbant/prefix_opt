@@ -5,6 +5,7 @@ authors = ["Ruben Lapauw <Ruben.Lapauw@cs.kuleuven.be>"]
 license = "MIT/Apache-2.0"
 description = "See ReadMe. Automatically derive options from structs and enums to use with clap."
 readme = "../README.md"
+repository = "https://github.com/Rupsbant/prefix_opt"
 
 [dependencies]
 syn = "^0.11.4"
