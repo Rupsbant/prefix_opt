@@ -1,6 +1,7 @@
 use super::core::*;
 use std::marker::PhantomData;
 use std::str::FromStr;
+use super::concat_ref::*;
 
 #[derive(Debug)]
 pub struct Parsable<T>(String, PhantomData<T>);
@@ -52,7 +53,7 @@ impl PrefixOpt for f64 {
 
 impl<T: FromStr> PrefixOptContainer for Parsable<T> {
     type Parsed = T;
-    fn with_prefix(prefix: &str) -> Self {
+    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
         Parsable(prefix.into(), PhantomData)
     }
     fn as_arguments(&self) -> Args {
@@ -73,7 +74,7 @@ pub struct Unit();
 
 impl PrefixOptContainer for Parsable<Unit> {
     type Parsed = ();
-    fn with_prefix(prefix: &str) -> Self {
+    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
         Parsable(prefix.into(), PhantomData)
     }
     fn as_arguments(&self) -> Args {

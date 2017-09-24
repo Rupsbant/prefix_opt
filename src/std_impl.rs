@@ -1,4 +1,5 @@
 use super::*;
+use super::concat_ref::*;
 
 #[derive(Debug)]
 pub struct BoxContainer<T: PrefixOpt>(T::Container);
@@ -9,8 +10,8 @@ impl<T: PrefixOpt> PrefixOpt for Box<T> {
 impl<T: PrefixOpt> PrefixOptContainer for BoxContainer<T> {
     type Parsed = Box<<T::Container as PrefixOptContainer>::Parsed>;
 
-    fn with_prefix(prefix: &str) -> Self {
-        BoxContainer(T::with_prefix(prefix))
+    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
+        BoxContainer(<T::Container as PrefixOptContainer>::with_prefix(prefix))
     }
     fn as_arguments(&self) -> Args {
         self.0.as_arguments()
@@ -35,7 +36,7 @@ impl<T: PrefixOpt> PrefixOpt for Option<T> where <T::Container as PrefixOptConta
 }
 impl<T: PrefixOpt> PrefixOptContainer for OptionContainer<T> where <T::Container as PrefixOptContainer>::Parsed: Default {
     type Parsed = Option<<T::Container as PrefixOptContainer>::Parsed>;
-    fn with_prefix(prefix: &str) -> Self {
+    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
         let some = format!("{}.some", prefix);
         let some_g = format!("{}.some_g", prefix);
         OptionContainer {

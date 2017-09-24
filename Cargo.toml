@@ -13,3 +13,7 @@ clap = "^2.23"
 map_in_place = "0.1.0"
 
 [lib]
+
+[[bin]]
+name = "example_1"
+path = "bin/example_1.rs"
