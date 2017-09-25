@@ -64,18 +64,18 @@ I have a program with too much options to encode manually. I liked OpenSSH's app
 In a general order of personal importance.
 
 * Optional integration with structopt which is flat.
-* Remove redundant indexing for enums, tuples and structs with a single field.
-* Remove redundant formatting with a linked list of prefixes that is formatted once.
 * Add annotation to remove dependency on default and require the arguments.
 * Add annotation to change the printed name instead of the field name.
 * Add annotation to alias short names or shorter long names for leaf values.
 * Add annotation for descriptions to arguments.
+* Derive generic structs.
 * Remove with_prefix struct, depends on clap API change concerning owned strings, [issue 1041](https://github.com/kbknapp/clap-rs/issues/1041).
 
 ## Changelog
 
-0.2.0 Fixing default bug, an option minimally changes it's sisters: only for sister fields in a non-default enum discriminant.
-0.1.0 Initial version, has known bugs.
+* 0.3.0
+* 0.2.0 Fixing default bug, an option minimally changes it's sisters: only for sister fields in a non-default enum discriminant.
+* 0.1.0 Initial version, has known bugs.
 
 ## License
 Dual-licensed.
