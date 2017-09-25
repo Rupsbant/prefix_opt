@@ -27,7 +27,8 @@ pub fn derive(ident: &Ident, variant: &Vec<Variant>) -> quote::Tokens {
         #[allow(unused_attributes, unused_imports, unused_variables)]
         const #dummy: () = {
             extern crate prefixopt;
-            use prefixopt::core::*;
+            use prefixopt::*;
+            use prefixopt::concat_ref::*;
             #decl_enum
             impl PrefixOptContainer for #ident_container {
                 type Parsed = #ident;
@@ -63,22 +64,16 @@ fn decl_enum(ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
 fn impl_with_prefix(tags: &[(&Ident, Ident)]) -> quote::Tokens {
     let tname = tags.iter().map(|id| id.0);
     let ttype = tags.iter().map(|id| &id.1);
-    let tfmts1 = tags.iter().map(|id| format!("{{}}.{}", id.0));
-    let tfmts2 = tags.iter().map(|id| format!("{{}}.{}_g", id.0));
-    let prefix1 = tags.iter().map(|id| id.0);
-    let prefix2 = tags.iter().map(|id| id.0);
-    let prefix_group1 = tags.iter().map(|id| Ident::new(format!("{}_g", id.0)));
-    let prefix_group2 = tags.iter().map(|id| Ident::new(format!("{}_g", id.0)));
+    let tfmts1 = tags.iter().map(|id| id.0.as_ref());
+    let tfmts2 = tags.iter().map(|id| format!("{}_group", id.0));
     let group = tags.iter()
         .map(|id| Ident::new(format!("{}_group", id.0)));
     quote!(
         #[allow(non_snake_case)]
-        fn with_prefix(prefix: &str) -> Self {
-            #(let #prefix1 = format!(#tfmts1, prefix);)*
-            #(let #prefix_group1 = format!(#tfmts2, prefix);)*
+        fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
             Self {
-                #(#tname: <#ttype as PrefixOpt>::Container::with_prefix(&#prefix2),)*
-                #(#group: #prefix_group2,)*
+                #(#tname: <#ttype as PrefixOpt>::Container::concat_prefix(&prefix.append(&#tfmts1)),)*
+                #(#group: prefix.append(&#tfmts2).into(),)*
             }
         }
     )

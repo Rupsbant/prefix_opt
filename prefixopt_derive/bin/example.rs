@@ -8,7 +8,7 @@ use prefixopt::core::*;
 #[derive(Debug, PrefixOpt)]
 pub enum A {
     A(Box<u32>, Option<Option<u8>>),
-    B(B),
+    B{x:B},
     C,
     D(),
 }

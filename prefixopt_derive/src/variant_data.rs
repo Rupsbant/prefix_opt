@@ -13,7 +13,8 @@ pub fn derive(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
         #[allow(unused_attributes, unused_imports, unused_variables)]
         const #dummy: () = {
             extern crate prefixopt;
-            use prefixopt::core::*;
+            use prefixopt::*;
+            use prefixopt::concat_ref::*;
             #decl_struct
             impl PrefixOptContainer for #ident_container {
                 type Parsed = #ident;
@@ -65,11 +66,12 @@ fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> qu
             let names = fields.iter().map(|f| f.ident.as_ref().unwrap());
             let fmt = fields
                 .iter()
-                .map(|f| format!("{{}}.{}", f.ident.as_ref().unwrap()));
+                .filter_map(|f| f.ident.as_ref())
+                .map(|i| i.as_ref());
             quote!(
-                fn with_prefix(prefix: &str) -> Self {
+                fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
                     Self {#(#names: <#types as PrefixOpt>
-                        ::Container::with_prefix(&format!(#fmt, prefix))),*}
+                        ::Container::concat_prefix(&prefix.append(&#fmt))),*}
                 }
             )
         }
@@ -78,26 +80,26 @@ fn derive_with_prefix(ident_container: &Ident, variant_data: &VariantData) -> qu
             let fmt = fields
                 .iter()
                 .enumerate()
-                .map(|(i, _)| format!("{{}}.{}", i));
+                .map(|(i, _)| i);
             quote!(
-                fn with_prefix(prefix: &str) -> Self {
+                fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
                     #ident_container (#(<#types as PrefixOpt>
-                        ::Container::with_prefix(&format!(#fmt, prefix))),*)
+                        ::Container::concat_prefix(&prefix.append(&#fmt))),*)
                 }
             )
         }
         VariantData::Tuple(ref fields) if fields.len() == 1 => {
             let types = &fields[0].ty;
             quote!(
-                fn with_prefix(prefix: &str) -> Self {
-                    #ident_container (<#types as PrefixOpt>::Container::with_prefix(prefix))
+                fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
+                    #ident_container (<#types as PrefixOpt>::Container::concat_prefix(prefix))
                 }
             )
         }
         VariantData::Unit |
         VariantData::Tuple(_) => {
             quote!(
-            fn with_prefix(prefix: &str) -> Self {
+            fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
                 #ident_container(prefix.into())
             }
         )
