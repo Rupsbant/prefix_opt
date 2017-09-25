@@ -15,18 +15,24 @@ impl<'a, T: fmt::Display> fmt::Display for ConcatRef<'a, T> {
     }
 }
 
-impl<'a, T: Display + ?Sized> ConcatRef<'a, &'a T> {
-    pub fn new_prefix(prefix: &'a T) -> Self {
+impl<'a, T> ConcatRef<'a, T> {
+    pub fn new_prefix(prefix: T) -> Self {
         ConcatRef {
             before: None,
             after: prefix,
         }
     }
-    pub fn append(&'a self, postfix: &'a T) -> ConcatRef<'a, &'a T> {
+    pub fn append(&'a self, postfix: T) -> ConcatRef<'a, T> {
         ConcatRef {
             before: Some(self),
             after: postfix,
         }
+    }
+}
+
+impl<'a, T> From<T> for ConcatRef<'a, T> {
+    fn from(fr: T) -> Self {
+        Self::new_prefix(fr)
     }
 }
 

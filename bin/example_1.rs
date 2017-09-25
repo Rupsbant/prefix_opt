@@ -50,8 +50,8 @@ impl PrefixOpt for A {
 }
 impl PrefixOptContainer for AC {
     type Parsed = A;
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
-        Self { number: u64::with_prefix_concat(&prefix.append(&"number"))}
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
+        Self { number: <u64 as PrefixOpt>::Container::concat_prefix(&prefix.append(&"number"))}
     }
     fn as_arguments(&self) -> Args {
         self.number.as_arguments()
@@ -65,13 +65,13 @@ impl PrefixOpt for Split {
 }
 impl PrefixOptContainer for SplitC {
     type Parsed = Split;
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
         SplitC {
             ag: prefix.append(&"A").into(),
-            a: A::with_prefix_concat(&prefix.append(&"A.0")),
+            a: <A as PrefixOpt>::Container::concat_prefix(&prefix.append(&"A.0")),
             bg: prefix.append(&"B").into(),
-            b0: A::with_prefix_concat(&prefix.append(&"B.0")),
-            b1: u64::with_prefix_concat(&prefix.append(&"B.1")),
+            b0: A::with_prefix(&prefix.append(&"B.0")),
+            b1: u64::with_prefix(&prefix.append(&"B.1")),
         }
     }
     fn as_arguments(&self) -> Args {

@@ -2,19 +2,17 @@ pub extern crate clap;
 extern crate map_in_place;
 use super::concat_ref::*;
 
+
 pub trait PrefixOpt {
     type Container: PrefixOptContainer;
-    fn with_prefix(prefix: &str) -> Self::Container {
-        Self::with_prefix_concat(&ConcatRef::new_prefix(&prefix))
-    }
-    fn with_prefix_concat(prefix: &ConcatRef<&Display>) -> Self::Container {
-        Self::Container::with_prefix(prefix)
+    fn with_prefix<T: Display>(prefix: T) -> Self::Container {
+        Self::Container::concat_prefix(&ConcatRef::from(&prefix as &Display))
     }
 }
 
 pub trait PrefixOptContainer {
     type Parsed;
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self;
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self;
     fn as_arguments(&self) -> Args;
     fn override_arguments(&self,
                           parsed: Self::Parsed,

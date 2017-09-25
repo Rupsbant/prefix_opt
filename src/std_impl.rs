@@ -10,8 +10,8 @@ impl<T: PrefixOpt> PrefixOpt for Box<T> {
 impl<T: PrefixOpt> PrefixOptContainer for BoxContainer<T> {
     type Parsed = Box<<T::Container as PrefixOptContainer>::Parsed>;
 
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
-        BoxContainer(<T::Container as PrefixOptContainer>::with_prefix(prefix))
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
+        BoxContainer(<T::Container as PrefixOptContainer>::concat_prefix(prefix))
     }
     fn as_arguments(&self) -> Args {
         self.0.as_arguments()
@@ -36,13 +36,11 @@ impl<T: PrefixOpt> PrefixOpt for Option<T> where <T::Container as PrefixOptConta
 }
 impl<T: PrefixOpt> PrefixOptContainer for OptionContainer<T> where <T::Container as PrefixOptContainer>::Parsed: Default {
     type Parsed = Option<<T::Container as PrefixOptContainer>::Parsed>;
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
-        let some = format!("{}.some", prefix);
-        let some_g = format!("{}.some_g", prefix);
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
         OptionContainer {
-            some: T::with_prefix(&some),
-            some_group: some_g,
-            none: format!("{}.none", prefix),
+            some: T::Container::concat_prefix(&prefix.append(&"some")),
+            some_group: prefix.append(&"some_g").into(),
+            none: prefix.append(&"none").into(),
         }
     }
     fn as_arguments(&self) -> Args {

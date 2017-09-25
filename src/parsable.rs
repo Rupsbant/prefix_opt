@@ -53,7 +53,7 @@ impl PrefixOpt for f64 {
 
 impl<T: FromStr> PrefixOptContainer for Parsable<T> {
     type Parsed = T;
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
         Parsable(prefix.into(), PhantomData)
     }
     fn as_arguments(&self) -> Args {
@@ -74,7 +74,7 @@ pub struct Unit();
 
 impl PrefixOptContainer for Parsable<Unit> {
     type Parsed = ();
-    fn with_prefix(prefix: &ConcatRef<&Display>) -> Self {
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
         Parsable(prefix.into(), PhantomData)
     }
     fn as_arguments(&self) -> Args {
