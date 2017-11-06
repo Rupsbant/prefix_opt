@@ -7,6 +7,7 @@ use proc_macro::TokenStream;
 use syn::*;
 mod enum_data;
 mod variant_data;
+mod generics;
 
 /// Generates the `PrefixOpt` impl.
 #[proc_macro_derive(PrefixOpt, attributes(prefixopt))]
@@ -19,10 +20,10 @@ pub fn prefixopt(input: TokenStream) -> TokenStream {
 
 fn impl_prefixopt(ast: DeriveInput) -> quote::Tokens {
     let ref ident = ast.ident;
-    //let generics = add_prefix_opt(&ast.generics);
+    let generics = generics::with_prefixopt_constraints(ast.generics);
     let tokens = match ast.body {
-        syn::Body::Struct(_struct) => variant_data::derive(ident, &_struct),
-        syn::Body::Enum(_enum) => enum_data::derive(ident, &_enum),
+        syn::Body::Struct(_struct) => variant_data::derive(&generics, ident, &_struct),
+        syn::Body::Enum(_enum) => enum_data::derive(&generics, ident, &_enum),
     };
     tokens
 }

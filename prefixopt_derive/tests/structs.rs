@@ -31,3 +31,33 @@ fn named_tuple() {
     let a = ac.override_arguments(A(1, 2, 3), &matches.unwrap()).unwrap();
     assert_eq!(a, A(2, 3, 3));
 }
+
+#[macro_use]
+extern crate prefixopt_derive;
+extern crate prefixopt;
+extern crate clap;
+
+#[test]
+fn generic_struct() {
+    use prefixopt::*;
+    #[derive(PrefixOpt, Debug, PartialEq, Eq)]
+    pub struct A<T> {
+        a: T,
+        b: T,
+    }
+    impl<T: Default> Default for A<T> {
+        fn default() -> Self {
+            A {
+                a: T::default(),
+                b: T::default(),
+            }
+        }
+    }
+    let a_opt = A::<u32>::with_prefix("o");
+    let app = a_opt
+        .as_arguments()
+        .bind_app(clap::App::new("named_enum"));
+    let matches = app.get_matches_from_safe(&["test", "--o.b=2"]);
+    let a = a_opt.override_arguments(A { a: 5, b: 6 }, &matches.unwrap());
+    assert_eq!(a, Some(A { a: 5, b: 2 }));
+}

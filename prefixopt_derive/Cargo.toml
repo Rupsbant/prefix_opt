@@ -18,4 +18,4 @@ proc-macro = true
 
 [[bin]]
 name = "example"
-path = "bin/example.rs"
+path = "bin/test.rs"

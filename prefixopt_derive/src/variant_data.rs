@@ -1,13 +1,15 @@
 use super::*;
 
-pub fn derive(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
+pub fn derive(generics: &Generics, ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
     let dummy = Ident::new(format!("_IMPL_PREFIXOPT_FOR_{}", ident));
     let ident_container = Ident::new(format!("PREFIXOPT_FOR_{}", ident));
-    let decl_struct = derive_struct(&ident_container, &variant_data);
+    let decl_struct = derive_struct(generics, &ident_container, &variant_data);
     let fields = variant_data.fields();
     let constructor = derive_with_prefix(&ident_container, variant_data);
     let builder = derive_as_arguments(fields);
     let matcher = derive_override_arguments(fields);
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
     quote!(
         #[allow(non_upper_case_globals)]
         #[allow(unused_attributes, unused_imports, unused_variables)]
@@ -16,27 +18,27 @@ pub fn derive(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
             use prefixopt::*;
             use prefixopt::concat_ref::*;
             #decl_struct
-            impl PrefixOptContainer for #ident_container {
-                type Parsed = #ident;
+            impl #impl_generics PrefixOptContainer for #ident_container #ty_generics #where_clause {
+                type Parsed = #ident #ty_generics;
                 #constructor
                 #builder
                 #matcher
             }
-            impl PrefixOpt for #ident {
-                type Container = #ident_container;
+            impl #impl_generics PrefixOpt for #ident #ty_generics #where_clause {
+                type Container = #ident_container #ty_generics;
             }
         };
     )
 }
-fn derive_struct(ident_container: &Ident, variant_data: &VariantData) -> quote::Tokens {
+fn derive_struct(generics: &Generics, ident_container: &Ident, variant_data: &VariantData) -> quote::Tokens {
+let (impl_generics, _, _) = generics.split_for_impl();
     match *variant_data {
         VariantData::Struct(ref fields) => {
             let names = fields.iter().map(|f| f.ident.as_ref().unwrap());
             let types = fields.iter().map(|f| &f.ty);
             quote!(
                 #[allow(non_camel_case_types)]
-                #[derive(Debug)]
-                pub struct #ident_container{
+                pub struct #ident_container #impl_generics {
                     #(#names: <#types as PrefixOpt>::Container,)*
                 }
             )
@@ -45,15 +47,13 @@ fn derive_struct(ident_container: &Ident, variant_data: &VariantData) -> quote::
             let types = fields.iter().map(|f| &f.ty);
             quote!(
                 #[allow(non_camel_case_types)]
-                #[derive(Debug)]
-                pub struct #ident_container(#(<#types as PrefixOpt>::Container,)*);
+                pub struct #ident_container #impl_generics(#(<#types as PrefixOpt>::Container,)*);
             )
         }
         VariantData::Unit |
         VariantData::Tuple(_) => {
             quote!(
             #[allow(non_camel_case_types)]
-            #[derive(Debug)]
             pub struct #ident_container(String);
         )
         }

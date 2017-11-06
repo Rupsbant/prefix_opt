@@ -1,13 +1,13 @@
 use super::*;
 
-pub fn derive(ident: &Ident, variant: &Vec<Variant>) -> quote::Tokens {
+pub fn derive(generics: &Generics, ident: &Ident, variant: &Vec<Variant>) -> quote::Tokens {
     let (idents, structs): (Vec<(_, _)>, Vec<_>) = variant
         .iter()
         .map(|var| {
             let struct_ident = Ident::new(format!("{}_{}", ident, var.ident));
-            let decl_struct = decl_struct(&struct_ident, &var.data);
-            let impl_prefix = super::variant_data::derive(&struct_ident, &var.data);
-            let impl_from = impl_from(&ident, &var.ident, &struct_ident, &var.data);
+            let decl_struct = decl_struct(generics, &struct_ident, &var.data);
+            let impl_prefix = super::variant_data::derive(&generics, &struct_ident, &var.data);
+            let impl_from = impl_from(generics, &ident, &var.ident, &struct_ident, &var.data);
             ((&var.ident, struct_ident),
              quote!(
                      #decl_struct
@@ -17,11 +17,13 @@ pub fn derive(ident: &Ident, variant: &Vec<Variant>) -> quote::Tokens {
         })
         .unzip();
     let ident_container = Ident::new(format!("PREFIXOPT_FOR_{}", ident));
-    let decl_enum = decl_enum(&ident_container, &idents);
+    let decl_enum = decl_enum(generics, &ident_container, &idents);
     let with_prefix = impl_with_prefix(&idents);
     let as_arguments = impl_as_arguments(&idents);
     let match_arguments = impl_match_arguments(&idents);
     let dummy = Ident::new(format!("_IMPL_PREFIXOPT_FOR_{}", ident));
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
     quote!(
         #[allow(non_upper_case_globals)]
         #[allow(unused_attributes, unused_imports, unused_variables)]
@@ -30,21 +32,23 @@ pub fn derive(ident: &Ident, variant: &Vec<Variant>) -> quote::Tokens {
             use prefixopt::*;
             use prefixopt::concat_ref::*;
             #decl_enum
-            impl PrefixOptContainer for #ident_container {
-                type Parsed = #ident;
+            impl #impl_generics PrefixOptContainer for #ident_container #ty_generics #where_clause  {
+                type Parsed = #ident #ty_generics;
                 #with_prefix
                 #as_arguments
                 #match_arguments
             }
-            impl PrefixOpt for #ident {
-                type Container = #ident_container;
+            impl #impl_generics PrefixOpt for #ident #ty_generics #where_clause  {
+                type Container = #ident_container #ty_generics;
             }
             #(#structs)*
         };
     )
 }
 
-fn decl_enum(ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
+fn decl_enum(generics: &Generics, ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
+    let (impl_generics, ty_generics, _) = generics.split_for_impl();
+    let ty_generics = ::std::iter::repeat(&ty_generics);
     let fname = tags.iter().map(|id| &id.0);
     let ftype = tags.iter().map(|id| &id.1);
     let group = tags.iter()
@@ -52,10 +56,9 @@ fn decl_enum(ident: &Ident, tags: &[(&Ident, Ident)]) -> quote::Tokens {
     quote!(
         #[allow(non_camel_case_types)]
         #[allow(non_snake_case)]
-        #[derive(Debug)]
-        pub struct #ident {
+        pub struct #ident #impl_generics {
             #(
-              #fname: <#ftype as PrefixOpt>::Container,
+              #fname: <#ftype #ty_generics as PrefixOpt>::Container,
               #group: String,)*
         }
     )
@@ -125,7 +128,8 @@ fn impl_match_arguments(tags: &[(&Ident, Ident)]) -> quote::Tokens {
     )
 }
 
-fn impl_from(enu: &Ident, name: &Ident, ty: &Ident, var_data: &VariantData) -> quote::Tokens {
+fn impl_from(generics: &Generics, enu: &Ident, name: &Ident, ty: &Ident, var_data: &VariantData) -> quote::Tokens {
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
     let (construct, matcher, match_constructor) = match *var_data {
         VariantData::Struct(ref v) => {
             let v1 = v.iter().map(|f| &f.ident);
@@ -146,13 +150,13 @@ fn impl_from(enu: &Ident, name: &Ident, ty: &Ident, var_data: &VariantData) -> q
         VariantData::Unit => (quote!(), quote!(), quote!(()))
     };
     quote!(
-        impl From<#ty> for #enu {
-            fn from(fr: #ty) -> Self {
+        impl #impl_generics From<#ty #ty_generics> for #enu #ty_generics #where_clause {
+            fn from(fr: #ty #ty_generics) -> Self {
                 #enu::#name #construct
             }
         }
-        impl #ty {
-            fn from(fr: #enu) -> Self {
+        impl#impl_generics #ty #ty_generics #where_clause {
+            fn from(fr: #enu#ty_generics) -> Self {
                 match fr {
                     #enu::#name#matcher => #ty#match_constructor,
                     _ => #ty::default(),
@@ -162,7 +166,8 @@ fn impl_from(enu: &Ident, name: &Ident, ty: &Ident, var_data: &VariantData) -> q
     )
 }
 
-fn decl_struct(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
+fn decl_struct(gen: &Generics, ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
+    let (_, ty_generics, _) = gen.split_for_impl();
     match *variant_data {
         VariantData::Struct(ref fields) => {
             let names = fields.iter().map(|f| f.ident.as_ref().unwrap());
@@ -170,7 +175,7 @@ fn decl_struct(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
             quote!(
                 #[allow(non_camel_case_types)]
                 #[derive(Debug, Default)]
-                pub struct #ident{
+                pub struct #ident #ty_generics {
                     #(#names: #types,)*
                 }
             )
@@ -180,7 +185,7 @@ fn decl_struct(ident: &Ident, variant_data: &VariantData) -> quote::Tokens {
             quote!(
                 #[allow(non_camel_case_types)]
                 #[derive(Debug, Default)]
-                pub struct #ident(#(#types,)*);
+                pub struct #ident #ty_generics(#(#types,)*);
             )
         }
         VariantData::Unit => quote!(
