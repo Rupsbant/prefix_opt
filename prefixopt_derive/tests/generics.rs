@@ -8,12 +8,14 @@ fn generic_enum() {
     use prefixopt::*;
     #[derive(PrefixOpt, Debug, PartialEq, Eq)]
     pub enum Either<L, R> {
-        Left(L),
+        Left{l:L},
         Right(R),
+        None,
+        Any(),
     }
     impl<L: Default, R> Default for Either<L, R> {
         fn default() -> Self {
-            Either::Left(L::default())
+            Either::Left{l: L::default()}
         }
     }
     let a_opt = Either::<u64, f64>::with_prefix("o");
