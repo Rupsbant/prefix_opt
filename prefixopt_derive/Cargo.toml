@@ -11,11 +11,11 @@ repository = "https://github.com/Rupsbant/prefix_opt"
 syn = "^0.11.4"
 quote = "^0.3.12"
 clap = "^2.23"
-prefixopt = "0.3.0"
+prefixopt = {version = "0.3.0", path = "../"}
 
 [lib]
 proc-macro = true
 
 [[bin]]
 name = "example"
-path = "bin/test.rs"
+path = "bin/example.rs"
