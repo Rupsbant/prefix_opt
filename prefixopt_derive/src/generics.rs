@@ -17,6 +17,20 @@ pub fn with_prefixopt_constraints(mut generics: Generics) -> Generics {
     }
     generics
 }
+pub fn with_default_constraints(mut generics: Generics) -> Generics {
+    for ty_param in generics.ty_params.iter_mut() {
+        let default_ty_bound = {
+            let path = Path::from("Default");
+            let trait_ref = PolyTraitRef {
+                bound_lifetimes: vec![],
+                trait_ref: path,
+            };
+            TyParamBound::Trait(trait_ref, TraitBoundModifier::None)
+        };
+        ty_param.bounds.push(default_ty_bound);
+    }
+    generics
+}
 
 /** Creates a where bound of the following form:
 * <#ty_param_ident as PrefixOpt>::Container: PrefixOptContainer<Parsed = #ty_param_ident>

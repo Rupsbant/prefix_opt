@@ -23,7 +23,10 @@ fn impl_prefixopt(ast: DeriveInput) -> quote::Tokens {
     let generics = generics::with_prefixopt_constraints(ast.generics);
     let tokens = match ast.body {
         syn::Body::Struct(_struct) => variant_data::derive(&generics, ident, &_struct),
-        syn::Body::Enum(_enum) => enum_data::derive(&generics, ident, &_enum),
+        syn::Body::Enum(_enum) => {
+            let generics = generics::with_default_constraints(generics);
+            enum_data::derive(&generics, ident, &_enum)
+        },
     };
     tokens
 }
