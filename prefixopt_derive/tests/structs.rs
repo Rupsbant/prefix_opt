@@ -32,11 +32,6 @@ fn named_tuple() {
     assert_eq!(a, A(2, 3, 3));
 }
 
-#[macro_use]
-extern crate prefixopt_derive;
-extern crate prefixopt;
-extern crate clap;
-
 #[test]
 fn generic_struct() {
     use prefixopt::*;
