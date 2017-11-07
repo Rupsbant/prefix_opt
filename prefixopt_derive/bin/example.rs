@@ -6,11 +6,12 @@ extern crate prefixopt;
 use prefixopt::core::*;
 
 #[derive(Debug, PrefixOpt)]
-pub enum A {
-    A(Box<u32>, Option<Option<u8>>),
+pub enum A<T> {
+    A(Box<T>, Option<Option<u8>>),
     B{x:B},
     C,
     D(),
+    E(::std::marker::PhantomData<u32>)
 }
 
 #[derive(Debug, PrefixOpt)]
@@ -19,9 +20,9 @@ pub enum B {
     Bar,
     Bux,
 }
-impl Default for A {
-    fn default() -> A {
-        A::A(Box::new(1), None)
+impl<T> Default for A<T> {
+    fn default() -> A<T> {
+        A::C
     }
 }
 impl Default for B {
@@ -31,7 +32,7 @@ impl Default for B {
 }
 
 fn main() {
-    let splitc = A::with_prefix("o");
+    let splitc = A::<u32>::with_prefix("o");
     let args = splitc.as_arguments();
     let app = args.bind_app(clap::App::new("testing"));
     let matches = app.get_matches();
