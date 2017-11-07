@@ -129,24 +129,20 @@ fn derive_as_arguments(fields: &[Field]) -> quote::Tokens {
 }
 
 fn derive_override_arguments(fields: &[Field]) -> quote::Tokens {
-    let names1 = fields
+    let names = fields
         .iter()
         .enumerate()
-        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
-    let names2 = fields
-        .iter()
-        .enumerate()
-        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
-    let names3 = fields
-        .iter()
-        .enumerate()
-        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)));
+        .map(|(i, f)| f.ident.as_ref().cloned().unwrap_or(Ident::new(i)))
+        .collect::<Vec<_>>();
+    let names1 = &names;
+    let names2 = &names;
+    let names3 = &names;
     quote!(
         #[allow(unused_mut)]
         fn override_arguments(&self, mut out: Self::Parsed, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
             #(
-                out.#names3 =
-                if let Some(p) = self.#names1.override_arguments(out.#names2, matches) {p} else {return None};
+                out.#names1 =
+                if let Some(p) = self.#names2.override_arguments(out.#names3, matches) {p} else {return None};
             )*
             Some(out)
         }
