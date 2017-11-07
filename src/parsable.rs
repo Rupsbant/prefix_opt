@@ -62,7 +62,10 @@ impl<T: FromStr> PrefixOptContainer for Parsable<T> {
                       .takes_value(true)],
              vec![])
     }
-    fn override_arguments(&self, parsed: Self::Parsed, matches: &clap::ArgMatches) -> Option<Self::Parsed> {
+    fn override_arguments(&self,
+                          parsed: Self::Parsed,
+                          matches: &clap::ArgMatches)
+                          -> Option<Self::Parsed> {
         matches
             .value_of(&self.0)
             .map(str::parse)
@@ -82,5 +85,23 @@ impl PrefixOptContainer for Parsable<Unit> {
     }
     fn override_arguments(&self, _: Self::Parsed, _: &clap::ArgMatches) -> Option<Self::Parsed> {
         Some(())
+    }
+}
+
+pub struct Phantom<T: ?Sized>(::std::marker::PhantomData<T>);
+
+impl<T: ?Sized> PrefixOpt for ::std::marker::PhantomData<T> {
+    type Container = Parsable<Phantom<T>>;
+}
+impl<T: ?Sized> PrefixOptContainer for Parsable<Phantom<T>> {
+    type Parsed = PhantomData<T>;
+    fn concat_prefix(prefix: &ConcatRef<&Display>) -> Self {
+        Parsable(prefix.into(), PhantomData)
+    }
+    fn as_arguments(&self) -> Args {
+        Args(vec![], vec![])
+    }
+    fn override_arguments(&self, _: Self::Parsed, _: &clap::ArgMatches) -> Option<Self::Parsed> {
+        Some(PhantomData)
     }
 }
