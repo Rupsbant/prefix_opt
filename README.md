@@ -49,7 +49,7 @@ I have a program with too much options to encode manually. I liked OpenSSH's app
 ## To do and possible extensions
 In a general order of personal importance.
 
-* Optional integration with structopt which is flat.
+* Optional integration with structopt which currently only supports flat flags and options.
 * Add annotation to remove dependency on default and require the arguments.
 * Add annotation to change the printed name instead of the field name.
 * Add annotation to alias short names or shorter long names for leaf values.
