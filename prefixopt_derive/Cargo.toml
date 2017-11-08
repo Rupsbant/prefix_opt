@@ -1,6 +1,6 @@
 [package]
 name = "prefixopt_derive"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Ruben Lapauw <Ruben.Lapauw@cs.kuleuven.be>"]
 license = "MIT/Apache-2.0"
 description = "See ReadMe. Automatically derive options from structs and enums to use with clap."
@@ -11,7 +11,7 @@ repository = "https://github.com/Rupsbant/prefix_opt"
 syn = "^0.11.4"
 quote = "^0.3.12"
 clap = "^2.23"
-prefixopt = {version = "0.3.0", path = "../"}
+prefixopt = {version = "0.4.0", path = "../"}
 
 [lib]
 proc-macro = true

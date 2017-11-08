@@ -7,7 +7,6 @@ Deriving PrefixOpt for a struct or enum implements the PrefixOpt trait for the s
 Derivator of PrefixOpt requires that both structs and enums implement `Default`.
 
 ## Example
-
 Add `prefixopt` and `prefixopt-derive` to your dependencies of your `Cargo.toml`:
 ```toml
 [dependencies]
@@ -23,12 +22,14 @@ extern crate prefixopt_derive;
 use prefixopt::core::*;
 
 #[derive(Debug, PrefixOpt)]
-pub enum A {
-    A(Box<u32>, Option<Option<u8>>),
-    B(B),
+pub enum A<T> {
+    A(Box<T>, Option<Option<u8>>),
+    B{x:T},
     C,
     D(),
+    E(::std::marker::PhantomData<u32>)
 }
+
 
 #[derive(Debug, PrefixOpt)]
 pub enum B {
@@ -48,7 +49,7 @@ impl Default for B {
 }
 
 fn main() {
-    let splitc = A::with_prefix("o");
+    let splitc = A::<B>::with_prefix("o");
     let args = splitc.as_arguments();
     let app = args.bind_app(clap::App::new("testing"));
     let matches = app.get_matches();
@@ -68,12 +69,12 @@ In a general order of personal importance.
 * Add annotation to change the printed name instead of the field name.
 * Add annotation to alias short names or shorter long names for leaf values.
 * Add annotation for descriptions to arguments.
-* Derive generic structs.
 * Remove with_prefix struct, depends on clap API change concerning owned strings, [issue 1041](https://github.com/kbknapp/clap-rs/issues/1041).
 
 ## Changelog
 
-* 0.3.0
+* 0.4.0 Adding generics for structs and enums.
+* 0.3.0 Less formatting, removing redundant indexing for unary tuples in structs and enums.
 * 0.2.0 Fixing default bug, an option minimally changes it's sisters: only for sister fields in a non-default enum discriminant.
 * 0.1.0 Initial version, has known bugs.
 
